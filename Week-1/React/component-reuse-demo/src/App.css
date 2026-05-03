@@ -1,0 +1,117 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 6rem 2rem;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  justify-content: center;
+}
+
+.price-card {
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 32px;
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.price-card:hover {
+  transform: translateY(-12px);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5);
+}
+
+.price-card.featured {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: var(--accent-purple);
+}
+
+.featured-badge {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: var(--accent-purple);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.plan-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+}
+
+.plan-price {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+}
+
+.plan-price span {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.features-list {
+  list-style: none;
+  margin-bottom: 3rem;
+  flex: 1;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1rem;
+  color: #cbd5e1;
+}
+
+.feature-item.disabled {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.cta-button {
+  width: 100%;
+  padding: 1.2rem;
+  border-radius: 16px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  color: black;
+}
+
+.cta-button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 20px -5px rgba(255, 255, 255, 0.2);
+}
+
+.price-card.featured .cta-button {
+  background: linear-gradient(to right, var(--accent-purple), var(--accent-pink));
+  color: white;
+}
+
+@media (max-width: 768px) {
+  h1 { font-size: 2.5rem; }
+  .container { padding: 3rem 1rem; }
+}
