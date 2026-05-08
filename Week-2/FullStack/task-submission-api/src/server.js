@@ -3,9 +3,13 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const taskRoutes = require('./routes/taskRoutes');
+const connectDB = require('./config/db');
 
 // Load env vars
 dotenv.config();
+
+// Connect to database
+connectDB();
 
 const app = express();
 
