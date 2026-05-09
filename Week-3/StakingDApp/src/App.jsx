@@ -17,6 +17,7 @@ function App() {
   const [amount, setAmount] = useState('');
   const [chainId, setChainId] = useState(null);
   const [history, setHistory] = useState([]);
+  const [isDemo, setIsDemo] = useState(false);
   
   const [stats, setStats] = useState({
     stakedBalance: '0',
@@ -83,12 +84,22 @@ function App() {
   }, [contract, account, provider]);
 
   useEffect(() => {
+    if (isDemo) {
+      setStats({
+        stakedBalance: '150.0',
+        pendingRewards: '12.5',
+        totalStaked: '45000.0',
+        walletBalance: '500.0'
+      });
+      return;
+    }
+
     if (account && contract) {
       fetchStats();
       const interval = setInterval(fetchStats, 10000);
       return () => clearInterval(interval);
     }
-  }, [account, contract, fetchStats]);
+  }, [account, contract, fetchStats, isDemo]);
 
   const handleAction = async (actionType, method, ...args) => {
     if (!amount || isNaN(amount)) {
@@ -98,21 +109,49 @@ function App() {
     
     try {
       setLoading(true);
-      const txPromise = actionType === 'Stake' 
-        ? method({ value: ethers.parseEther(amount) })
-        : method(...args);
-      
       toast.loading(`Processing ${actionType}...`, { id: 'tx' });
-      const tx = await txPromise;
-      await tx.wait();
+
+      if (isDemo) {
+        await new Promise(r => setTimeout(r, 1500)); // Simulate delay
+        toast.success(`${actionType} (Demo) Successful!`, { id: 'tx' });
+        
+        // Update stats locally for demo
+        if (actionType === 'Stake') {
+          setStats(prev => ({ 
+            ...prev, 
+            stakedBalance: (parseFloat(prev.stakedBalance) + parseFloat(amount)).toString(),
+            walletBalance: (parseFloat(prev.walletBalance) - parseFloat(amount)).toString()
+          }));
+        } else {
+          setStats(prev => ({ 
+            ...prev, 
+            stakedBalance: (parseFloat(prev.stakedBalance) - parseFloat(amount)).toString() 
+          }));
+        }
+      } else {
+        const txPromise = actionType === 'Stake' 
+          ? method({ value: ethers.parseEther(amount) })
+          : method(...args);
+        
+        const tx = await txPromise;
+        await tx.wait();
+        toast.success(`${actionType} Successful!`, { id: 'tx' });
+        fetchStats();
+      }
       
-      toast.success(`${actionType} Successful!`, { id: 'tx' });
       addHistory(actionType, amount);
       setAmount('');
-      fetchStats();
     } catch (error) {
-      toast.error(`${actionType} Failed!`, { id: 'tx' });
       console.error(error);
+      
+      // Detailed Error Handling
+      let errorMsg = `${actionType} Failed!`;
+      if (error.code === 'ACTION_REJECTED') errorMsg = "Transaction Rejected by User";
+      if (error.code === 'INSUFFICIENT_FUNDS') errorMsg = "Insufficient Funds in Wallet";
+      if (error.code === 'INVALID_ARGUMENT') errorMsg = "Invalid Amount Entered";
+      if (error.code === 'CALL_EXCEPTION') errorMsg = "Contract Error: Ensure address is correct";
+      
+      toast.error(errorMsg, { id: 'tx' });
     } finally {
       setLoading(false);
     }
@@ -122,11 +161,19 @@ function App() {
     try {
       setLoading(true);
       toast.loading("Claiming Rewards...", { id: 'claim' });
-      const tx = await contract.claimRewards();
-      await tx.wait();
-      toast.success("Rewards Claimed!", { id: 'claim' });
+      
+      if (isDemo) {
+        await new Promise(r => setTimeout(r, 1500));
+        toast.success("Rewards (Demo) Claimed!", { id: 'claim' });
+        setStats(prev => ({ ...prev, pendingRewards: '0' }));
+      } else {
+        const tx = await contract.claimRewards();
+        await tx.wait();
+        toast.success("Rewards Claimed!", { id: 'claim' });
+        fetchStats();
+      }
+      
       addHistory('Claim', stats.pendingRewards);
-      fetchStats();
     } catch (error) {
       toast.error("Claim Failed!", { id: 'claim' });
     } finally {
@@ -143,7 +190,17 @@ function App() {
           SCAI<span>STAKING</span>
         </div>
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-          {account && (
+          <button 
+            className={`connect-btn ${isDemo ? 'demo-active' : ''}`} 
+            style={{ background: isDemo ? 'var(--success)' : 'rgba(255,255,255,0.05)', border: '1px solid var(--card-border)' }}
+            onClick={() => {
+              setIsDemo(!isDemo);
+              if (!isDemo) toast("Presentation Mode Active", { icon: '📺' });
+            }}
+          >
+            {isDemo ? "Presentation Mode: ON" : "Presentation Mode: OFF"}
+          </button>
+          {account && !isDemo && (
             <div className="network-badge">
               <Globe size={14} />
               <span>Chain ID: {chainId}</span>
