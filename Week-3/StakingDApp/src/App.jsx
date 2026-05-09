@@ -112,6 +112,12 @@ function App() {
       toast.loading(`Processing ${actionType}...`, { id: 'tx' });
 
       if (isDemo) {
+        if (actionType === 'Withdraw' && parseFloat(amount) > parseFloat(stats.stakedBalance)) {
+          toast.error("Cannot withdraw more than staked!", { id: 'tx' });
+          setLoading(false);
+          return;
+        }
+
         await new Promise(r => setTimeout(r, 1500)); // Simulate delay
         toast.success(`${actionType} (Demo) Successful!`, { id: 'tx' });
         
@@ -125,7 +131,8 @@ function App() {
         } else {
           setStats(prev => ({ 
             ...prev, 
-            stakedBalance: (parseFloat(prev.stakedBalance) - parseFloat(amount)).toString() 
+            stakedBalance: (parseFloat(prev.stakedBalance) - parseFloat(amount)).toString(),
+            walletBalance: (parseFloat(prev.walletBalance) + parseFloat(amount)).toString()
           }));
         }
       } else {
@@ -289,11 +296,11 @@ function App() {
                 <span>APY: 10% (Fixed Rate)</span>
               </div>
               <div className="info-row">
-                <AlertTriangle size={14} color="#f59e0b" />
-                <span>Min Stake: 0.1 SCAI</span>
+                <Coins size={14} color="#9d50bb" />
+                <span style={{ textAlign: 'left' }}>Rewards are paid in <strong>SRT (Staking Reward Token)</strong>, an ERC20 token minted directly to your wallet when you claim.</span>
               </div>
-              <a href="#" className="contract-link">
-                Protocol Smart Contract <ExternalLink size={12} />
+              <a href="https://github.com/c-pranav-sharma/Blockchain/blob/main/Week-3/SCAIStaking.sol" target="_blank" rel="noopener noreferrer" className="contract-link">
+                View Smart Contract Source <ExternalLink size={12} />
               </a>
             </div>
           </motion.div>
