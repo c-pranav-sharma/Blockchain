@@ -3,7 +3,7 @@
 A professional, full-stack Web3 Staking application built for the SecureChain AI (SCAI) ecosystem. This project demonstrates end-to-end integration between a custom Solidity smart contract, a React/Vite frontend, and a Node.js/ML security layer.
 
 ## 🔗 Live Demo & Deployment
-*   **Live App**: [scai-staking.vercel.app](https://blockchain-wine-sigma.vercel.app/) (Placeholder)
+*   **Live App**: [scai-staking.vercel.app](https://blockchain-wine-sigma.vercel.app/) 
 *   **Github Repo**: [github.com/c-pranav-sharma/Blockchain](https://github.com/c-pranav-sharma/Blockchain)
 
 ## ✨ Key Features
