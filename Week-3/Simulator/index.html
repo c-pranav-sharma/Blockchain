@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCAI Staking Full-Stack Simulator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <span class="scai-text">SCAI</span>
+                <span class="sub-text">Staking Simulator</span>
+            </div>
+            <div class="tx-info">
+                <span class="label">TX ID:</span>
+                <span class="value" id="tx-id">0x2D358185c70ae71F9bea1c564252211b03150B98</span>
+            </div>
+        </header>
+
+        <main>
+            <div class="architecture-grid">
+                <!-- Row 1 -->
+                <div class="node-container" id="node-frontend" style="grid-column: 1; grid-row: 1;">
+                    <div class="node-card">
+                        <div class="node-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                        </div>
+                        <h3>React Frontend</h3>
+                        <p>MetaMask Wallet</p>
+                        <div class="status-indicator"></div>
+                    </div>
+                </div>
+
+                <div class="connection-h" id="conn-frontend-blockchain" style="grid-column: 2; grid-row: 1;">
+                    <div class="path"></div>
+                    <div class="packet"></div>
+                </div>
+
+                <div class="node-container" id="node-blockchain" style="grid-column: 3; grid-row: 1;">
+                    <div class="node-card">
+                        <div class="node-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                            </svg>
+                        </div>
+                        <h3>SCAI Blockchain</h3>
+                        <p>Smart Contract</p>
+                        <div class="status-indicator"></div>
+                    </div>
+                </div>
+
+                <!-- Row 2 -->
+                <div class="connection-v" id="conn-frontend-backend" style="grid-column: 1; grid-row: 2;">
+                    <div class="path"></div>
+                    <div class="packet"></div>
+                </div>
+
+                <!-- Row 3 -->
+                <div class="node-container" id="node-backend" style="grid-column: 1; grid-row: 3;">
+                    <div class="node-card">
+                        <div class="node-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                            </svg>
+                        </div>
+                        <h3>Node.js Backend</h3>
+                        <p>Express Sync API</p>
+                        <div class="status-indicator"></div>
+                    </div>
+                </div>
+
+                <div class="connection-h" id="conn-backend-mongodb" style="grid-column: 2; grid-row: 3;">
+                    <div class="path"></div>
+                    <div class="packet"></div>
+                </div>
+
+                <div class="node-container" id="node-mongodb" style="grid-column: 3; grid-row: 3;">
+                    <div class="node-card">
+                        <div class="node-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                            </svg>
+                        </div>
+                        <h3>MongoDB</h3>
+                        <p>Intern Database</p>
+                        <div class="status-indicator"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="btn-stake" class="primary-btn">
+                    <span class="btn-text">Stake SCAI</span>
+                    <span class="btn-glow"></span>
+                </button>
+            </div>
+        </main>
+
+        <footer>
+            <div class="log-container">
+                <div class="log-header">
+                    <span>System Status Log</span>
+                    <span class="blink">● LIVE</span>
+                </div>
+                <div class="log-content" id="log-content">
+                    <div class="log-entry system">Ready to simulate transaction...</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
