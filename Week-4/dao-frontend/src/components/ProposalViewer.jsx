@@ -78,20 +78,22 @@ const ProposalViewer = ({ signer, account, selectedProposalId, onProposalSelecte
       let descriptionText = "View description on Block Explorer (Event Logs)";
       const filter = governor.filters.ProposalCreated();
       
-      // Fallback mechanism for aggressive RPC node block-range limits
+      // Chunked scan - walk backwards in 2000-block pages (RPC safe)
+      const CHUNK = 2000n;
+      const MAX_CHUNKS = 30;
+      const curBlock = BigInt(await signer.provider.getBlockNumber());
       let events = [];
-      try {
-        events = await governor.queryFilter(filter, 0, "latest"); // Try full chain history first
-      } catch (err0) {
+      for (let i = 0; i < MAX_CHUNKS; i++) {
+        const toBlock = curBlock - BigInt(i) * CHUNK;
+        const fromBlock = toBlock - CHUNK + 1n > 0n ? toBlock - CHUNK + 1n : 0n;
         try {
-          events = await governor.queryFilter(filter, -100000); // 2+ days
-        } catch (err1) {
-          try {
-            events = await governor.queryFilter(filter, -10000); // ~5 hours
-          } catch (err2) {
-            events = await governor.queryFilter(filter, -2000); // ~1 hour
+          const chunk = await governor.queryFilter(filter, fromBlock, toBlock);
+          if (chunk.length > 0) {
+            const found = chunk.find(e => e.args[0].toString() === idToSearch);
+            if (found) { events = [found]; break; }
           }
-        }
+        } catch (e) { /* skip bad chunk */ }
+        if (fromBlock === 0n) break;
       }
 
       const foundEvent = events.find(e => e.args[0].toString() === idToSearch);
@@ -127,24 +129,21 @@ const ProposalViewer = ({ signer, account, selectedProposalId, onProposalSelecte
       const { governor } = await getContracts(signer);
       const filter = governor.filters.ProposalCreated();
       
-      // Fallback mechanism for aggressive RPC node block-range limits
+      // Chunked scan - walk backwards in 2000-block pages (RPC safe)
+      const CHUNK = 2000n;
+      const MAX_CHUNKS = 30; // scan up to 60,000 blocks = ~33 hours
+      const currentBlock = BigInt(await signer.provider.getBlockNumber());
       let events = [];
-      try {
-        events = await governor.queryFilter(filter, 0, "latest"); // Try full chain history
-      } catch (err0) {
+      for (let i = 0; i < MAX_CHUNKS; i++) {
+        const toBlock = currentBlock - BigInt(i) * CHUNK;
+        const fromBlock = toBlock - CHUNK + 1n > 0n ? toBlock - CHUNK + 1n : 0n;
         try {
-          events = await governor.queryFilter(filter, -100000);
-        } catch (err1) {
-          try {
-            events = await governor.queryFilter(filter, -10000);
-          } catch (err2) {
-            try {
-              events = await governor.queryFilter(filter, -2000);
-            } catch (err3) {
-               throw new Error("RPC node rejected log queries. Range too large.");
-            }
-          }
+          const chunk = await governor.queryFilter(filter, fromBlock, toBlock);
+          events = [...events, ...chunk];
+        } catch (e) {
+          // This chunk failed, skip it silently
         }
+        if (fromBlock === 0n) break;
       }
       
       // Filter by the connected account
@@ -189,11 +188,18 @@ const ProposalViewer = ({ signer, account, selectedProposalId, onProposalSelecte
       </form>
 
       {(!proposalState || proposalState === 'Invalid ID') && (
-        <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Forgot your ID?</span>
-          <button type="button" onClick={fetchMyProposals} className="btn" style={{ background: 'rgba(108, 92, 231, 0.2)', border: '1px solid var(--primary)', color: 'white', padding: '0.4rem 0.8rem', fontSize: '0.85rem', fontWeight: '500' }} disabled={isFetchingRecent}>
-            {isFetchingRecent ? 'Scanning Network...' : 'Find My Proposals'}
-          </button>
+        <div style={{ marginTop: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Forgot your ID?</span>
+            <button type="button" onClick={fetchMyProposals} className="btn" style={{ background: 'rgba(108, 92, 231, 0.2)', border: '1px solid var(--primary)', color: 'white', padding: '0.4rem 0.8rem', fontSize: '0.85rem', fontWeight: '500' }} disabled={isFetchingRecent}>
+              {isFetchingRecent ? '⏳ Scanning Blockchain...' : 'Find My Proposals'}
+            </button>
+          </div>
+          {isFetchingRecent && (
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem', textAlign: 'right' }}>
+              Scanning recent blocks in chunks — this may take 10–20 seconds...
+            </p>
+          )}
         </div>
       )}
 
